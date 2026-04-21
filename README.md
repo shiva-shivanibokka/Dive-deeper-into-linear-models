@@ -9,7 +9,7 @@ A comprehensive reference for regression and classification models — implement
 ```
 Dive-deeper-into-linear-models/
 ├── linear_regression_models.ipynb      ← All regression models
-├── logistic_regression_models.ipynb    ← All classification models
+├── classification_models.ipynb         ← All classification models
 └── README.md                           ← This file
 ```
 
@@ -34,7 +34,7 @@ Dive-deeper-into-linear-models/
 
 ---
 
-### `logistic_regression_models.ipynb`
+### `classification_models.ipynb`
 **Datasets:**
 - **Breast Cancer Wisconsin** (569 samples, 30 features) — binary classification
 - **Wine Dataset** (178 samples, 13 features) — multi-class classification
