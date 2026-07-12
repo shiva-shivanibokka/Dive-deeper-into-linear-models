@@ -401,6 +401,29 @@ def build_comparison():
     return {"regression": reg, "classification": clf}
 
 
+def build_serving():
+    """Train the model that the live /api/predict serverless endpoint serves.
+
+    A Ridge regressor on California Housing plus its standardizer. We export the
+    coefficients, intercept, and per-feature mean/std so the Edge/Node function can
+    do real inference (standardize -> dot(coef) + intercept) in a few lines of TS,
+    with no Python runtime shipped to production.
+    """
+    d = fetch_california_housing()
+    X, y, names = d.data, d.target, list(d.feature_names)
+    sc = StandardScaler().fit(X)
+    model = Ridge(alpha=1.0).fit(sc.transform(X), y)
+    return {
+        "features": names,
+        "means": [r(v) for v in sc.mean_],
+        "stds": [r(v) for v in sc.scale_],
+        "coef": [r(v) for v in model.coef_],
+        "intercept": r(model.intercept_),
+        "target": "median house value (in $100,000s)",
+        "example": {n: r(float(X[:, i].mean())) for i, n in enumerate(names)},
+    }
+
+
 WRITERS = {
     "linear": build_linear, "biasvariance": build_biasvariance,
     "regularization": build_regularization, "knnsvr": build_knnsvr,
@@ -410,6 +433,9 @@ WRITERS = {
     "boosting": build_boosting, "threshold": build_threshold,
     "comparison": build_comparison,
 }
+
+
+SERVING_PATH = OUT.parent / "app" / "api" / "predict" / "model.json"
 
 
 def main():
@@ -422,7 +448,11 @@ def main():
     for name in WRITERS:  # self-check: exists, valid JSON, non-empty
         obj = json.loads((OUT / f"{name}.json").read_text())
         assert obj, f"{name}.json is empty"
-    print(f"OK {len(WRITERS)} artifacts -> {OUT}")
+    # serving model for the live /api/predict endpoint
+    SERVING_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SERVING_PATH.write_text(json.dumps(build_serving()))
+    print(f"wrote serving-model -> {SERVING_PATH.name}")
+    print(f"OK {len(WRITERS)} artifacts + serving model")
 
 
 if __name__ == "__main__":

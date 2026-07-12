@@ -86,6 +86,11 @@ export const MODEL_TABS: ModelTab[] = [
     help: "Every model in this playground, benchmarked on a shared train/test split. Sort by any metric to see which family wins where — and that no single model dominates everything.",
   },
   {
+    id: "serving", group: "Capstone", title: "Live API", dataset: "served via /api/predict",
+    tagline: "Edit a house's features and hit predict — a real serverless function runs a trained Ridge model live, not a precomputed lookup.",
+    help: "This tab makes an actual network request to a serverless function. The Ridge model is trained offline in Python and served as coefficients; the function standardizes your inputs and computes the prediction on the fly.",
+  },
+  {
     id: "about", group: "Capstone", title: "About", dataset: "the whole series",
     tagline: "A plain-language guide to every model here, how each demo works, and how it all fits together.",
     help: "What every model is, what each demo shows, and how the precomputed-artifact approach keeps it all running in your browser.",

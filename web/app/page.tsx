@@ -24,8 +24,16 @@ const TAB_COMPONENTS: Record<string, React.ComponentType> = {
   boosting: load(() => import("./components/BoostingTab")),
   threshold: load(() => import("./components/ThresholdTab")),
   comparison: load(() => import("./components/ComparisonTab")),
+  serving: load(() => import("./components/ServingTab")),
   about: load(() => import("./components/AboutTab")),
 };
+
+// Map each tab back to the notebook that teaches it.
+const REPO = "https://github.com/shiva-shivanibokka/Dive-deeper-into-linear-models/blob/main";
+const notebookFor = (group: string): string | null =>
+  group === "Regression" ? `${REPO}/linear_regression_models.ipynb`
+  : group === "Classification" ? `${REPO}/classification_models.ipynb`
+  : null;
 
 export default function Home() {
   const [active, setActive] = useState(MODEL_TABS[0].id);
@@ -65,6 +73,11 @@ export default function Home() {
           <span className="chip">{tab.group} · {tab.dataset}</span>
         </div>
         <p className="panel-tagline">{tab.tagline}</p>
+        {notebookFor(tab.group) && (
+          <p className="note" style={{ marginTop: "-0.75rem", marginBottom: "1.25rem" }}>
+            📓 <a href={notebookFor(tab.group)!} target="_blank" rel="noreferrer">Open the notebook that teaches this →</a>
+          </p>
+        )}
         {Comp ? <Comp /> : null}
       </section>
 
