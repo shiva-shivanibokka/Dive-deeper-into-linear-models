@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.ruff_cache/
+.venv/
+venv/
+
+# Next.js / Node
+web/node_modules/
+web/.next/
+web/out/
+web/.vercel/
+
+# Env & secrets
+.env
+.env.*
