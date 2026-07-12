@@ -1,233 +1,193 @@
 # Dive Deeper into Linear Models
 
-A comprehensive reference for regression and classification models — implemented in Python with detailed explanations, visualizations, and real-world datasets.
+> An interactive playground + notebook series exploring 20+ regression and classification models on real datasets — deployed live on Vercel.
+
+![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.8-orange)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![Deployed on Vercel](https://img.shields.io/badge/deployed-Vercel-000)
+
+**🔗 Live demo: [web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**
 
 ---
 
-## Repository Structure
+## Recruiter TL;DR
+
+- **What it is:** two teaching notebooks covering 20+ supervised-learning models (regularized, kernel, robust, generalized, and probabilistic linear models plus tree ensembles), paired with a **16-tab interactive web app** that lets anyone explore each model by dragging sliders and watching charts redraw — deployed live on Vercel.
+- **Hardest problem solved well:** making trained scikit-learn models *interactive in the browser with no backend and no ML runtime client-side* — models are fit once in Python, swept over their key parameter, and exported as compact precomputed JSON that a dependency-free React/SVG layer redraws instantly.
+- **Why it matters:** closes the most common student-portfolio gap — a model that "works in a notebook but was never deployed." Here the models are deployed, and made legible to a non-expert.
+
+---
+
+## Overview
+
+Linear and kernel-based models are the backbone of applied machine learning, but most learning resources stop at a static plot. This project turns the "dive deeper" material into something you can *poke at*: move a regularization penalty and watch Lasso zero out features in real time; inject outliers and watch ordinary least squares swing while robust regressors hold; drag a decision threshold and watch precision trade against recall on a live ROC curve.
+
+It was built as both a teaching resource and a portfolio piece — the notebooks are the reference, and the web app is the proof that the models were deployed and communicated, not just trained.
+
+**Scope note (no redundancy):** plain linear and logistic regression *fundamentals* (pipelines, leakage-free preprocessing, honest evaluation) live in the companion repo **[Basics of Linear & Logistic Regression](https://github.com/shiva-shivanibokka/Basics-of-Linear-and-Logistic-Regression)**. This repo deliberately goes deeper into the regularized, kernel, robust, generalized, and probabilistic members of the family.
+
+---
+
+## The Interactive Playground
+
+Sixteen demo tabs, each reading one precomputed artifact and rendering it as inline SVG:
+
+| # | Tab | What you do | Models | Dataset |
+|---|-----|-------------|--------|---------|
+| 1 | Linear Regression | pick a feature → best-fit line, R², RMSE | OLS | California Housing |
+| 2 | Bias–Variance | drag polynomial degree 1→15 → watch over/underfitting | Polynomial | Diabetes |
+| 3 | Regularization | slide α → coefficient paths shrink, Lasso zeroes out | Ridge, Lasso, ElasticNet | Diabetes |
+| 4 | KNN & SVR | change k / ε-tube → fit reshapes | KNN, SVR | California Housing |
+| 5 | Bayesian Regression | raise prior strength → uncertainty band widens | Bayesian linear | Diabetes |
+| 6 | Robust Regression | inject outliers → OLS swings, robust fits hold | Huber, RANSAC, Theil-Sen | Diabetes |
+| 7 | Generalized Linear Models | toggle GLM → OLS predicts negatives, GLMs don't | Poisson, Gamma, Tweedie | California Housing |
+| 8 | Quantile Regression | slide quantile 0.1→0.9 → build a prediction interval | Quantile | Diabetes |
+| 9 | Discriminant Analysis | toggle LDA/QDA → linear vs curved boundary + ellipses | LDA, QDA | Wine |
+| 10 | Naive Bayes | see class-conditional decision regions | Gaussian NB | Iris |
+| 11 | KNN & SVM | change k / kernel → boundary reshapes | KNN, SVM | Iris |
+| 12 | Linear Classifiers | step Perceptron iterations → boundary settles | Perceptron, Ridge Classifier | Iris |
+| 13 | Boosting & Importance | compare importances + partial dependence | Gradient Boosting, XGBoost | Breast Cancer |
+| 14 | Threshold, ROC & Metrics | drag threshold → confusion matrix + ROC/PR move live | Gradient Boosting | Breast Cancer |
+| 15 | Model Comparison | sortable leaderboard across every model | all | Diabetes + Breast Cancer |
+| 16 | About | plain-language guide to every model | — | — |
+
+---
+
+## Architecture
+
+The core decision: **precompute in Python, interpolate in the browser.** No model runs client-side and there is no backend — every demo reads a small JSON artifact that was computed once by sweeping a model's key parameter offline. This keeps the site fully static (instant, free to host, nothing to secure) while still feeling live.
+
+```mermaid
+flowchart LR
+    subgraph Python["Python (offline, run once)"]
+        DS[5 real sklearn datasets] --> EX[export_web_artifacts.py]
+        NB[Jupyter notebooks<br/>20+ model sections] -.teaches.-> EX
+        EX -->|sweeps each model's<br/>key parameter| JSON[web/public/*.json<br/>15 precomputed artifacts]
+    end
+    subgraph Browser["Next.js on Vercel (static, client-side)"]
+        JSON --> HOOK[useArtifact fetch hook]
+        HOOK --> TAB[16 lazy-loaded tab components]
+        TAB --> SVG[dependency-free inline-SVG charts]
+        CTRL[slider / toggle] -->|indexes into<br/>precomputed arrays| TAB
+    end
+```
+
+**Why this shape:**
+- *Precomputed artifacts over live inference* — porting sklearn models (SVR, Bayesian ridge, XGBoost) to JS/WASM would be far more work and fragile; precomputing gives the same interactivity for a fraction of the effort and ships zero ML runtime to the client.
+- *Inline SVG over a chart library* — the whole frontend depends only on `next`, `react`, and `react-dom`. Every chart (scatter, coefficient paths, decision-boundary heat maps, ROC curves, covariance ellipses) is drawn by a small shared SVG helper module.
+- *Committed artifacts* — the JSON is committed, so the Vercel build needs no Python; it just builds the Next app.
+
+---
+
+## Tech Stack
+
+| Layer | Choice | Version | Why |
+|-------|--------|---------|-----|
+| Models & data | scikit-learn, XGBoost, NumPy | sklearn 1.8, xgb 3.2 | every model here is standard sklearn/xgboost; datasets ship with sklearn (no downloads) |
+| Export | Python | 3.12 | one script, one builder per artifact, with an assert-based self-check |
+| Frontend | Next.js 15 · React 19 · TypeScript | Next 15, React 19 | App Router + lazy tab loading; strict TS |
+| Charts | inline SVG | — | zero chart-library dependencies |
+| Hosting | Vercel | — | static client-side app, auto-detected Next.js |
+
+---
+
+## Skills Demonstrated
+
+- **Applied ML breadth** — regularization, robust regression, generalized linear models, discriminant analysis, kernel methods, and boosting, applied and compared on real datasets.
+- **Cloud deployment (Vercel)** — a working, publicly reachable production URL, not a local-only demo.
+- **System design & architecture** — a documented, deliberate tradeoff (precomputed artifacts vs. client-side inference) recorded in `docs/superpowers/specs/`.
+- **Data-to-artifact pipeline** — a reproducible export stage that transforms raw sklearn datasets into model-ready, versioned JSON with a validation self-check.
+- **Frontend engineering** — TypeScript + React/Next.js, dependency-light, accessible controls, responsive SVG.
+- **Technical communication** — turning ML concepts into interactive explanations a non-expert can follow.
+
+---
+
+## Project Structure
 
 ```
 Dive-deeper-into-linear-models/
-├── linear_regression_models.ipynb      ← All regression models
-├── classification_models.ipynb         ← All classification models
-└── README.md                           ← This file
+├── linear_regression_models.ipynb     # 11 regression model sections (incl. Robust, GLM, Quantile)
+├── classification_models.ipynb        # 7 classification model sections
+├── requirements.txt                   # Python deps for the notebooks + export
+├── scripts/
+│   └── export_web_artifacts.py        # sklearn models → web/public/*.json (with self-check)
+├── web/                               # Next.js 15 interactive playground
+│   ├── app/
+│   │   ├── page.tsx                   # tab shell (hero, tab bar, panel)
+│   │   ├── models.ts                  # tab registry — single source of truth
+│   │   ├── lib/                       # useArtifact hook + shared SVG chart helpers
+│   │   └── components/                # 16 tab components (one per demo)
+│   └── public/                        # 15 precomputed JSON artifacts
+└── docs/superpowers/                  # design spec + implementation plan
 ```
 
 ---
 
-## Notebooks at a Glance
+## Getting Started
 
-### `linear_regression_models.ipynb`
-**Dataset:** California Housing Dataset (20,640 samples, 8 features)  
-**Task:** Predict median house values across California block groups
-
-| # | Model | Key Concept |
-|---|-------|-------------|
-| 1 | Multiple Linear Regression | Best-fit hyperplane through multi-dimensional data |
-| 2 | Polynomial Regression | Captures non-linear (curved) relationships |
-| 3 | Ridge Regression (L2) | Shrinks coefficients to reduce overfitting; keeps all features |
-| 4 | Lasso Regression (L1) | Zeros out irrelevant features; automatic feature selection |
-| 5 | ElasticNet Regression | Combination of Ridge + Lasso penalties |
-| 6 | KNN Regression | Predicts based on average of K nearest neighbors |
-| 7 | Bayesian Linear Regression | Probabilistic predictions with uncertainty quantification |
-| 8 | Support Vector Regression (SVR) | Fits a tube around the data; robust to outliers |
-
----
-
-### `classification_models.ipynb`
-**Datasets:**
-- **Breast Cancer Wisconsin** (569 samples, 30 features) — binary classification
-- **Wine Dataset** (178 samples, 13 features) — multi-class classification
-
-| # | Model | Dataset | Key Concept |
-|---|-------|---------|-------------|
-| 1 | Linear Discriminant Analysis (LDA) | Wine | Finds the best linear projection to separate classes |
-| 2 | Quadratic Discriminant Analysis (QDA) | Wine | Like LDA but with flexible, curved boundaries |
-| 3 | Gaussian Naive Bayes | Breast Cancer | Probabilistic classification using Bayes' theorem |
-| 4 | K-Nearest Neighbors (KNN) | Wine | Majority vote from K nearest neighbors |
-| 5 | Support Vector Machine (SVM) | Breast Cancer | Maximum-margin hyperplane; kernel trick for non-linearity |
-| 6 | Gradient Boosting (GBM) | Breast Cancer | Sequential trees that correct each other's errors |
-| 7 | XGBoost | Breast Cancer | High-performance gradient boosting with regularization |
-
----
-
-## Key Concepts Explained
-
-### What Is Supervised Learning?
-
-Supervised learning is when a model **learns from labeled examples**. Each training example has both an **input** (features) and a known **output** (label). The model finds the relationship between inputs and outputs, then applies it to new, unseen data.
-
-Two main types:
-- **Regression** → predict a continuous number (house price, temperature)
-- **Classification** → predict a category (cancer or not, which wine type)
-
----
-
-### The Bias-Variance Trade-off
-
-One of the most important concepts in machine learning:
-
-- **High Bias (Underfitting)** → The model is too simple. It misses patterns even in training data. Example: fitting a straight line to data that curves.
-- **High Variance (Overfitting)** → The model is too complex. It memorizes training data but fails on new data. Example: a 10th-degree polynomial that wiggles through every point.
-- **Sweet spot** → A model that generalizes well — not too simple, not too complex.
-
-Ridge, Lasso, and ElasticNet are all designed to manage this trade-off through **regularization**.
-
----
-
-### Regularization — Why It Matters
-
-Plain linear regression finds the coefficients that minimize error on training data. But with many features, this can produce huge, unstable coefficients that overfit.
-
-**Regularization adds a penalty** for large coefficients:
-
-| Method | Penalty | Effect |
-|--------|---------|--------|
-| Ridge (L2) | Sum of squared coefficients | Shrinks all coefficients smoothly |
-| Lasso (L1) | Sum of absolute coefficients | Zeros out some coefficients entirely |
-| ElasticNet | Mix of L1 + L2 | Balanced shrinkage + feature selection |
-
----
-
-### Evaluation Metrics
-
-#### Regression Metrics
-
-| Metric | Formula (simplified) | What It Means |
-|--------|---------------------|---------------|
-| MAE | Average of absolute errors | Your average prediction error in original units |
-| RMSE | Square root of average squared errors | Like MAE but penalizes large errors more |
-| R² Score | 1 - (residual variance / total variance) | How much of the variation your model explains (1.0 = perfect) |
-
-#### Classification Metrics
-
-| Metric | What It Means |
-|--------|---------------|
-| Accuracy | % of predictions that are correct |
-| Precision | Of predicted positives, how many are truly positive? |
-| Recall | Of actual positives, how many did we correctly find? |
-| F1-Score | Harmonic mean of precision and recall |
-| ROC-AUC | How well the model separates the two classes across all thresholds |
-
-> **Important:** Accuracy can be misleading on imbalanced datasets. Always examine precision, recall, and the confusion matrix.
-
----
-
-## Model Selection Guide
-
-### For Regression
-
-| Situation | Recommended Model |
-|-----------|------------------|
-| Quick baseline | Multiple Linear Regression |
-| Many correlated features | Ridge Regression |
-| Many irrelevant features | Lasso Regression |
-| Uncertain which features matter | ElasticNet |
-| Non-linear patterns | Polynomial Regression or SVR |
-| No assumptions needed | KNN Regression |
-| Need uncertainty estimates | Bayesian Linear Regression |
-| Robust to outliers needed | SVR |
-
-### For Classification
-
-| Situation | Recommended Model |
-|-----------|------------------|
-| Quick baseline | Gaussian Naive Bayes |
-| Multi-class + visualization | LDA |
-| Different class spreads | QDA |
-| No distributional assumptions | KNN |
-| High-dimensional data | SVM |
-| Maximum accuracy needed | XGBoost or GBM |
-| Interpretable + feature importance | Gradient Boosting |
-
----
-
-## Datasets Used
-
-### California Housing Dataset
-- **Source:** 1990 US Census (via `sklearn.datasets.fetch_california_housing`)
-- **Samples:** 20,640
-- **Features:** 8 (income, house age, rooms, bedrooms, population, occupancy, lat/lon)
-- **Target:** Median house value (in $100,000s)
-
-### Breast Cancer Wisconsin Dataset
-- **Source:** UCI Machine Learning Repository (via `sklearn.datasets.load_breast_cancer`)
-- **Samples:** 569
-- **Features:** 30 (measurements of cell nuclei from biopsy images)
-- **Target:** Malignant (0) or Benign (1)
-
-### Wine Dataset
-- **Source:** UCI Machine Learning Repository (via `sklearn.datasets.load_wine`)
-- **Samples:** 178
-- **Features:** 13 (chemical properties of wine)
-- **Target:** Wine cultivar class (0, 1, or 2)
-
----
-
-## How to Run
-
-### 1. Clone the repository
+### Run the notebooks
 
 ```bash
 git clone https://github.com/shiva-shivanibokka/Dive-deeper-into-linear-models.git
 cd Dive-deeper-into-linear-models
+pip install -r requirements.txt
+jupyter notebook          # open either .ipynb and run top-to-bottom
 ```
 
-### 2. Install dependencies
+The notebooks also run in [Google Colab](https://colab.research.google.com/) with no local setup.
+
+### Run the web app locally
 
 ```bash
-pip install numpy pandas matplotlib seaborn scikit-learn xgboost jupyter
+cd web
+npm install
+npm run dev               # http://localhost:3000
 ```
 
-### 3. Launch Jupyter
+### Regenerate the precomputed artifacts
+
+Only needed if you change the data or models:
 
 ```bash
-jupyter notebook
+python scripts/export_web_artifacts.py   # writes web/public/*.json, then self-checks
 ```
 
-Then open either notebook and run cells from top to bottom.
+---
 
-These notebooks can also be run directly in [Google Colab](https://colab.research.google.com/) — no local setup required.
+## Deployment
+
+Deployed on **Vercel** as a static, client-side Next.js app (project root: `web/`). The site is fully static — no server functions, no environment variables, no Python at build time (the precomputed artifacts are committed). Live at **[web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**.
+
+> Note: the Vercel project's **Root Directory** must be set to `web` for git-triggered redeploys, since the Next.js app lives in a subdirectory.
 
 ---
 
-## Dependencies
+## Testing
 
-| Library | Version (recommended) | Purpose |
-|---------|----------------------|---------|
-| Python | 3.8+ | Language |
-| NumPy | 1.21+ | Numerical computing |
-| Pandas | 1.3+ | Data manipulation |
-| Matplotlib | 3.4+ | Visualization |
-| Seaborn | 0.11+ | Statistical visualization |
-| scikit-learn | 1.0+ | All ML models |
-| XGBoost | 1.5+ | XGBoost model |
-| Jupyter | 6.0+ | Notebook interface |
+There is no formal unit-test suite (this is a teaching/portfolio repo, not a service). What *is* verified:
+
+- `export_web_artifacts.py` ends with an **assert-based self-check** that every expected artifact exists, is valid JSON, and is non-empty — a failed or empty export is caught before it can ship.
+- Both notebooks execute **top-to-bottom without errors** (verified via `jupyter nbconvert --execute`).
+- The web app builds clean with **strict TypeScript** (`next build` with no type errors).
 
 ---
 
-## What's Not in This Repo
+## Roadmap / Known Limitations
 
-The following are intentionally excluded and covered in a **separate repository**:
-
-- Random Forest
-- Bagging / Bootstrap Aggregating
-- Extra Trees
-- AdaBoost
-- Stacking / Blending
-
-This keeps the focus clean: **linear and kernel-based models first**, ensemble methods second.
-
----
-
-## Author
-
-**Shivani Bokka**
-
-This repository was built as both a teaching resource and a professional portfolio piece demonstrating practical knowledge of supervised machine learning.
+- Demos show a small, representative parameter sweep per model (e.g. a handful of α values), not a continuous fit — a deliberate size/latency tradeoff of the precomputed approach.
+- Bias–Variance, Bayesian, Robust, and Quantile demos use a single real feature to keep the curve visualizable in 2D.
+- Possible next steps: a continuous-parameter mode via lightweight client-side interpolation, and per-tab links back to the exact notebook cell.
 
 ---
 
 ## License
 
-This project is open-source and available for educational use.
+MIT — see [LICENSE](./LICENSE).
+
+---
+
+## Author
+
+**Shivani Bokka** — built as a teaching resource and portfolio piece demonstrating applied supervised learning, front-end engineering, and cloud deployment end to end.
