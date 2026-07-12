@@ -41,7 +41,7 @@ export default function GlmTab() {
         </div>
       </div>
 
-      <Chart title="Predicted vs actual">
+      <Chart title="Predicted vs actual" caption="Each dot is one house: x is the actual value, y is the model's prediction. The dashed diagonal is perfect prediction, and the red horizontal line marks zero — dots below it are impossible negative predictions.">
         <Axes x0={lo} x1={hi} y0={lo} y1={hi} sx={sx} sy={sy} xlabel="actual" ylabel="predicted" />
         <Line pts={[[lo, lo], [hi, hi]]} sx={sx} sy={sy} stroke="var(--muted)" width={1.5} dash="4 3" />
         <Line pts={[[lo, 0], [hi, 0]]} sx={sx} sy={sy} stroke="var(--bad)" width={1.5} dash="4 3" />

@@ -1,8 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Tip } from "../lib/tip";
 
 type Schema = { features: string[]; example: Record<string, number>; target: string };
 type Prediction = { prediction: number; usd: number; unit: string };
+
+// What each California Housing input means (the model's 8 features).
+const FEATURE_TIPS: Record<string, string> = {
+  MedInc: "Median income of households in the block group (in tens of thousands of dollars, so 8.3 ≈ $83,000).",
+  HouseAge: "Median age of the houses in the block group, in years.",
+  AveRooms: "Average number of rooms per household in the block group.",
+  AveBedrms: "Average number of bedrooms per household in the block group.",
+  Population: "Total number of people living in the block group.",
+  AveOccup: "Average number of household members (people per household).",
+  Latitude: "How far north the block group is (higher = further north).",
+  Longitude: "How far west the block group is (more negative = further west).",
+};
 
 export default function ServingTab() {
   const [schema, setSchema] = useState<Schema | null>(null);
@@ -46,17 +59,19 @@ export default function ServingTab() {
         the prediction live. Edit the features and hit predict.
       </p>
 
-      <div className="control-row">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem" }}>
         {schema.features.map((name) => (
-          <div className="field" key={name} style={{ flex: "1 1 150px" }}>
-            <label htmlFor={name}><span className="lname">{name}</span></label>
+          <div className="field" key={name}>
+            <label htmlFor={name}>
+              <span className="lname">{name}{FEATURE_TIPS[name] && <Tip text={FEATURE_TIPS[name]} />}</span>
+            </label>
             <input
               id={name}
               type="number"
               step="any"
               value={vals[name] ?? 0}
               onChange={(e) => setVals({ ...vals, [name]: parseFloat(e.target.value) })}
-              style={{ background: "var(--panel-2)", color: "var(--text)", border: "1px solid var(--border)", borderRadius: 10, padding: ".5rem .55rem", fontSize: ".85rem" }}
+              style={{ width: "100%", boxSizing: "border-box", background: "var(--panel-2)", color: "var(--text)", border: "1px solid var(--border)", borderRadius: 10, padding: ".5rem .55rem", fontSize: ".85rem" }}
             />
           </div>
         ))}

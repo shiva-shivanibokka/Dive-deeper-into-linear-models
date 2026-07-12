@@ -35,7 +35,7 @@ export default function QuantileTab() {
             onChange={(e) => setI(Number(e.target.value))} />
         </div>
       </div>
-      <Chart title={`quantile fit q=${sel.q}`}>
+      <Chart title={`quantile fit q=${sel.q}`} caption="x and y are the data; dots are observations. The solid lime line is the selected quantile fit, the dashed grey line is the median, and the shaded band spans the lowest-to-highest quantile — a prediction interval that should contain most points.">
         <Axes x0={x0} x1={x1} y0={y0} y1={y1} sx={sx} sy={sy} xlabel="x" ylabel="y" />
         <Band pts={band} sx={sx} sy={sy} fill="var(--lime)" opacity={0.1} />
         <Scatter pts={d.scatter} sx={sx} sy={sy} />

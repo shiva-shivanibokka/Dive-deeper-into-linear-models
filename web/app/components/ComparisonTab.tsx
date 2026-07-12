@@ -99,9 +99,11 @@ export default function ComparisonTab() {
     <div className="demo">
       <div className="section-label">Regression — Diabetes</div>
       <SortableTable rows={d.regression} cols={regCols} initial="r2" />
+      <p className="note">click a metric header to sort; the best value in each column is highlighted.</p>
 
       <div className="section-label">Classification — Breast Cancer</div>
       <SortableTable rows={d.classification} cols={clfCols} initial="accuracy" />
+      <p className="note">click a metric header to sort; the best value in each column is highlighted.</p>
 
       <p className="callout">
         No single model wins every metric — that is the whole point of benchmarking on a shared train/test split.

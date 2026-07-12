@@ -54,7 +54,7 @@ export default function KnnSvrTab() {
           </div>
         )}
       </div>
-      <Chart title={mode === "KNN" ? `KNN fit (k=${knn.k})` : `SVR fit (ε=${svr.eps}, C=${svr.C})`}>
+      <Chart title={mode === "KNN" ? `KNN fit (k=${knn.k})` : `SVR fit (ε=${svr.eps}, C=${svr.C})`} caption="x and y are the data; grey dots are the samples and the coloured line is the model's prediction. In SVR mode the shaded band is the ε-tube — points inside it cost nothing, so only points on or outside it shape the fit.">
         <Axes x0={Math.min(...xs)} x1={Math.max(...xs)} y0={Math.min(...ys)} y1={Math.max(...ys)}
           sx={sx} sy={sy} xlabel="x" ylabel="y" />
         {mode === "SVR" && <Band pts={svr.tube} sx={sx} sy={sy} fill="var(--pink)" />}

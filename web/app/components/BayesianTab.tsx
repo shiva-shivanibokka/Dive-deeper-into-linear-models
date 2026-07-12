@@ -28,7 +28,7 @@ export default function BayesianTab() {
             onChange={(e) => setI(Number(e.target.value))} />
         </div>
       </div>
-      <Chart title={`posterior mean at λ=${p.lambda}`}>
+      <Chart title={`posterior mean at λ=${p.lambda}`} caption="x and y are the data; the dots are observations. The violet line is the posterior mean prediction and the violet band is its ±2σ uncertainty — the band widens where data is sparse, showing where the model is least sure.">
         <Axes x0={x0} x1={x1} y0={y0} y1={y1} sx={sx} sy={sy} xlabel="x" ylabel="y" />
         <Band pts={p.band} sx={sx} sy={sy} fill="var(--violet)" />
         <Scatter pts={d.scatter} sx={sx} sy={sy} />

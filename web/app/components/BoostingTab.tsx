@@ -37,6 +37,7 @@ export default function BoostingTab() {
 
       <div>
         <p className="section-label">Top feature importances — {model === "gbm" ? "Gradient Boosting" : "XGBoost"}</p>
+        <p className="note">longer bar = the model relied on that feature more.</p>
         <div className="bars">
           {rows.map((r) => (
             <div className="bar-row" key={r.name}>
@@ -49,7 +50,7 @@ export default function BoostingTab() {
 
       <div>
         <p className="section-label">Partial dependence — {d.pdp.feature}</p>
-        <Chart title={`Partial dependence of ${d.pdp.feature}`}>
+        <Chart title={`Partial dependence of ${d.pdp.feature}`} caption="the average model prediction as this feature varies, holding the others fixed; the slope shows the direction and strength of its effect.">
           <Axes x0={Math.min(...xs)} x1={Math.max(...xs)} y0={Math.min(...ys)} y1={Math.max(...ys)}
             sx={sx} sy={sy} xlabel={d.pdp.feature} ylabel="avg. prediction" />
           <Line pts={pdpPts} sx={sx} sy={sy} stroke="var(--lime)" width={2.5} />

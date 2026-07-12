@@ -46,6 +46,7 @@ export default function ThresholdTab() {
         </div>
       </div>
 
+      <p className="section-label">Confusion matrix at this threshold</p>
       <div className="cm">
         <div className="cell ok"><div className="n">{tp}</div><div className="t">True Positive</div></div>
         <div className="cell err"><div className="n">{fp}</div><div className="t">False Positive</div></div>
@@ -54,13 +55,13 @@ export default function ThresholdTab() {
       </div>
 
       <div className="grid-2">
-        <Chart title="ROC curve">
+        <Chart title="ROC curve" caption="true-positive rate vs false-positive rate; the dot is your current threshold — up and to the left is better.">
           <Axes x0={0} x1={1} y0={0} y1={1} sx={roc.sx} sy={roc.sy} xlabel="false positive rate" ylabel="true positive rate" />
           <Line pts={[[0, 0], [1, 1]]} sx={roc.sx} sy={roc.sy} stroke="var(--muted)" width={1.5} dash="3 3" />
           <Line pts={d.roc} sx={roc.sx} sy={roc.sy} stroke="var(--cyan)" width={2.5} />
           <Dot x={fpr} y={tpr} sx={roc.sx} sy={roc.sy} color="var(--lime)" />
         </Chart>
-        <Chart title="Precision–Recall">
+        <Chart title="Precision–Recall" caption="precision vs recall; the dot is your current threshold.">
           <Axes x0={0} x1={1} y0={0} y1={1} sx={pr.sx} sy={pr.sy} xlabel="recall" ylabel="precision" />
           <Line pts={d.pr} sx={pr.sx} sy={pr.sy} stroke="var(--pink)" width={2.5} />
           <Dot x={r.recall} y={r.precision} sx={pr.sx} sy={pr.sy} color="var(--lime)" />

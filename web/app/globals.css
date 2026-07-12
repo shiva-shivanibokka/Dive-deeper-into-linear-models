@@ -150,8 +150,22 @@ select:focus, input:focus-visible, button:focus-visible { outline: 2px solid var
 .tip:hover .pop, .tip:focus-within .pop { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
 /* ---- charts ---- */
-.chart-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; }
+.chart-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; margin: 0; }
 .chart-box svg { width: 100%; height: auto; display: block; }
+.chart-title {
+  font-family: var(--font-display); font-size: .98rem; font-weight: 600; color: var(--text);
+  margin: 0 0 .7rem; display: flex; align-items: center; gap: .5rem;
+}
+.chart-title::before { content: ""; width: 3px; height: 1em; border-radius: 2px; background: var(--grad); }
+.chart-caption { color: var(--muted); font-size: .82rem; line-height: 1.55; margin: .8rem 0 0; }
+.chart-caption b { color: var(--text); }
+
+/* "how to read this" guide under a demo */
+.readguide { border: 1px solid var(--border); border-radius: 12px; padding: .9rem 1.1rem;
+  background: color-mix(in srgb, var(--cyan) 6%, transparent); }
+.readguide .readguide-label { font-family: var(--font-mono); font-size: .7rem; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--cyan); display: block; margin-bottom: .4rem; }
+.readguide p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.6; }
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
 
 /* ---- legend ---- */

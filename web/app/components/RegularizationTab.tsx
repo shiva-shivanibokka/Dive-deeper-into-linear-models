@@ -1,9 +1,23 @@
 "use client";
 import { useState } from "react";
 import { useArtifact } from "../lib/data";
-import { Chart, makeScales, Axes, Line } from "../lib/svg";
+import { Chart, makeScales, Axes, Line, LegendItem } from "../lib/svg";
 
 type Model = "ridge" | "lasso" | "elastic";
+
+// sklearn diabetes feature descriptions, keyed by feature name.
+const FEATURE_TIPS: Record<string, string> = {
+  age: "age",
+  sex: "sex",
+  bmi: "bmi = body-mass index",
+  bp: "bp = blood pressure",
+  s1: "s1 = blood-serum measurement 1",
+  s2: "s2 = blood-serum measurement 2",
+  s3: "s3 = blood-serum measurement 3",
+  s4: "s4 = blood-serum measurement 4",
+  s5: "s5 = blood-serum measurement 5",
+  s6: "s6 = blood-serum measurement 6",
+};
 type Art = {
   features: string[];
   alphas: number[];
@@ -57,7 +71,7 @@ export default function RegularizationTab() {
         </div>
       </div>
 
-      <Chart title="Coefficient paths">
+      <Chart title="Coefficient paths" caption="Each line is one feature's coefficient (y) as the penalty log₁₀(α) increases along x; the dashed vertical line marks the selected α. Watch how coefficients shrink toward zero as α grows — Lasso snaps some to exactly zero.">
         <Axes x0={x0} x1={x1} y0={y0} y1={y1} sx={sx} sy={sy} xlabel="log₁₀(α)" ylabel="coefficient" />
         {d.features.map((f, j) => (
           <Line key={f} pts={d.alphas.map((a, ai) => [Math.log10(a), coefs[ai][j]])}
@@ -68,12 +82,11 @@ export default function RegularizationTab() {
 
       <div className="legend">
         {d.features.map((f, j) => (
-          <span key={f} className="item">
-            <span className="swatch" style={{ background: COLORS[j % COLORS.length] }} />{f}
-          </span>
+          <LegendItem key={f} color={COLORS[j % COLORS.length]} label={f} tip={FEATURE_TIPS[f] ?? f} />
         ))}
       </div>
 
+      <p className="section-label">Coefficient size at the selected α</p>
       <div className="bars">
         {d.features.map((f, j) => (
           <div key={f} className="bar-row">

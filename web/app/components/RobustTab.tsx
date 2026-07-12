@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useArtifact } from "../lib/data";
-import { Chart, makeScales, Axes, Line, Scatter } from "../lib/svg";
+import { Chart, makeScales, Axes, Line, Scatter, LegendItem } from "../lib/svg";
 
 type Frame = {
   frac: number;
@@ -36,7 +36,7 @@ export default function RobustTab() {
         </div>
       </div>
 
-      <Chart title="Robust vs ordinary least squares">
+      <Chart title="Robust vs ordinary least squares" caption="Points are the data (gray) plus injected outliers (red dots); each colored line is a different fitted regression. Watch how the red OLS line tilts toward the outliers while the robust fits stay near the clean trend.">
         <Axes x0={x0} x1={x1} y0={y0} y1={y1} sx={sx} sy={sy} xlabel="x" ylabel="y" />
         <Scatter pts={d.scatter} sx={sx} sy={sy} color="var(--muted)" />
         <Scatter pts={f.outliers} sx={sx} sy={sy} color="var(--bad)" r={3.5} opacity={1} />
@@ -47,11 +47,11 @@ export default function RobustTab() {
       </Chart>
 
       <div className="legend">
-        <span className="item"><span className="swatch" style={{ background: "var(--bad)" }} />OLS</span>
-        <span className="item"><span className="swatch" style={{ background: "var(--cyan)" }} />Huber</span>
-        <span className="item"><span className="swatch" style={{ background: "var(--lime)" }} />RANSAC</span>
-        <span className="item"><span className="swatch" style={{ background: "var(--violet)" }} />Theil-Sen</span>
-        <span className="item"><span className="swatch" style={{ background: "var(--bad)", borderRadius: "50%" }} />Outliers</span>
+        <LegendItem color="var(--bad)" label="OLS" term="OLS" />
+        <LegendItem color="var(--cyan)" label="Huber" term="Huber" />
+        <LegendItem color="var(--lime)" label="RANSAC" term="RANSAC" />
+        <LegendItem color="var(--violet)" label="Theil-Sen" term="Theil-Sen" />
+        <LegendItem color="var(--bad)" dot label="Outliers" term="Outliers" />
       </div>
 
       <p className="callout">

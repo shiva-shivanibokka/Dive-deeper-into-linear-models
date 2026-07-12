@@ -1,6 +1,8 @@
 "use client";
 import { useArtifact } from "../lib/data";
-import { makeScales, Chart, Axes, Points, Heat, CLASS_COLORS } from "../lib/svg";
+import { makeScales, Chart, Axes, Points, Heat, LegendItem, CLASS_COLORS } from "../lib/svg";
+
+const CLASS_NAMES = ["Iris setosa", "Iris versicolor", "Iris virginica"];
 
 type Grid = { x0: number; x1: number; y0: number; y1: number; step: number };
 type NaiveBayes = {
@@ -19,7 +21,7 @@ export default function NaiveBayesTab() {
 
   return (
     <div className="demo">
-      <Chart title="Gaussian Naive Bayes regions">
+      <Chart title="Gaussian Naive Bayes regions" caption="Background colors show the class the model predicts in each region; dots are real samples colored by their true class; a dot whose color differs from the region beneath it is a misclassification.">
         <Heat grid={d.boundary} x0={g.x0} x1={g.x1} y0={g.y0} y1={g.y1} sx={sx} sy={sy} />
         <Points pts={d.points} sx={sx} sy={sy} />
         <Axes x0={g.x0} x1={g.x1} y0={g.y0} y1={g.y1} sx={sx} sy={sy} xlabel="feature 1 (standardized)" ylabel="feature 2 (standardized)" />
@@ -27,10 +29,7 @@ export default function NaiveBayesTab() {
 
       <div className="legend">
         {Array.from({ length: nClasses }, (_, k) => (
-          <div className="item" key={k}>
-            <span className="dot" style={{ background: CLASS_COLORS[k % 3] }} />
-            class {k}
-          </div>
+          <LegendItem key={k} color={CLASS_COLORS[k % 3]} dot label={`class ${k}`} tip={CLASS_NAMES[k]} />
         ))}
       </div>
 

@@ -1,6 +1,8 @@
 // Dependency-free inline-SVG chart primitives shared by every demo tab.
 // Coordinate convention: data space -> screen space via `scale(domain, range)`.
 import type { ReactNode } from "react";
+import { Tip } from "./tip";
+import { GLOSSARY } from "./glossary";
 
 export const CLASS_COLORS = ["#22d3ee", "#a78bfa", "#f472b6"]; // class 0,1,2
 export const PLOT = { w: 440, h: 280, ml: 48, mr: 16, mt: 16, mb: 40 };
@@ -22,18 +24,35 @@ export function makeScales(x0: number, x1: number, y0: number, y1: number): Scal
   return { sx: scale([x0, x1], RX), sy: scale([y0, y1], RY) };
 }
 
-export function Chart({ title, children }: { title: string; children: ReactNode }) {
+export function Chart({ title, caption, children }: { title: string; caption?: string; children: ReactNode }) {
   return (
-    <div className="chart-box">
+    <figure className="chart-box">
+      {title && <figcaption className="chart-title">{title}</figcaption>}
       <svg viewBox={`0 0 ${PLOT.w} ${PLOT.h}`} role="img" aria-label={title}>
         <title>{title}</title>
         {children}
       </svg>
-    </div>
+      {caption && <p className="chart-caption"><b>How to read it:</b> {caption}</p>}
+    </figure>
   );
 }
 
 /** Axes frame with a few tick labels. */
+/** One legend entry: a colored line-swatch or dot, a label, and an optional "?" tooltip.
+ *  Pass `term` to auto-pull a definition from the glossary, or `tip` for custom text. */
+export function LegendItem({ color, dot, label, term, tip }: {
+  color: string; dot?: boolean; label: string; term?: string; tip?: string;
+}) {
+  const text = tip ?? (term ? GLOSSARY[term] : undefined);
+  return (
+    <span className="item">
+      <span className={dot ? "dot" : "swatch"} style={{ background: color }} />
+      {label}
+      {text && <Tip text={text} />}
+    </span>
+  );
+}
+
 export function Axes({ x0, x1, y0, y1, sx, sy, xlabel, ylabel }: {
   x0: number; x1: number; y0: number; y1: number; sx: (v: number) => number; sy: (v: number) => number;
   xlabel?: string; ylabel?: string;

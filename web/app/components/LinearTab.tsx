@@ -33,7 +33,9 @@ export default function LinearTab() {
         </div>
       </div>
 
-      <Chart title={`Least-squares fit on ${name}`}>
+      <Chart title={`Least-squares fit on ${name}`}
+        caption="The x-axis is the feature you selected; the y-axis is median house value. Grey dots are real block groups and the pink line is the least-squares fit. A tight cloud along a steep line means a high R² — that feature alone predicts price well.">
+
         <Axes x0={Math.min(...xs)} x1={Math.max(...xs)} y0={Math.min(...ys)} y1={Math.max(...ys)}
           sx={sx} sy={sy} xlabel={name} ylabel="median value ($100k)" />
         <Scatter pts={pf.points} sx={sx} sy={sy} />

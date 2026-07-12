@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useArtifact } from "../lib/data";
-import { Chart, makeScales, Axes, Line, Scatter, Dot } from "../lib/svg";
+import { Chart, makeScales, Axes, Line, Scatter, Dot, LegendItem } from "../lib/svg";
 
 type Deg = { degree: number; fit: [number, number][]; trainErr: number; testErr: number };
 type Art = { scatter: [number, number][]; degrees: Deg[] };
@@ -42,12 +42,12 @@ export default function BiasVarianceTab() {
         </div>
       </div>
       <div className="grid-2">
-        <Chart title="Polynomial fit">
+        <Chart title="Polynomial fit" caption="x and y are the raw data; each dot is a sample. The cyan curve is the fitted polynomial — watch how it wiggles more to chase the dots as you raise the degree.">
           <Axes x0={x0} x1={x1} y0={y0} y1={y1} sx={s1.sx} sy={s1.sy} xlabel="x" ylabel="y" />
           <Scatter pts={d.scatter} sx={s1.sx} sy={s1.sy} />
           <Line pts={g.fit} sx={s1.sx} sy={s1.sy} stroke="var(--cyan)" width={2.5} />
         </Chart>
-        <Chart title="Train vs test error">
+        <Chart title="Train vs test error" caption="The x-axis is polynomial degree, the y-axis is RMSE. Cyan is training error, pink is test error; the filled dots mark the currently selected degree. Look for where the pink line bottoms out — that is the best-generalizing degree.">
           <Axes x0={1} x1={maxDeg} y0={0} y1={maxErr} sx={s2.sx} sy={s2.sy} xlabel="degree" ylabel="RMSE" />
           <Line pts={trainPts} sx={s2.sx} sy={s2.sy} stroke="var(--cyan)" width={2} />
           <Line pts={testPts} sx={s2.sx} sy={s2.sy} stroke="var(--pink)" width={2} />
@@ -56,8 +56,8 @@ export default function BiasVarianceTab() {
         </Chart>
       </div>
       <div className="legend">
-        <span className="item"><span className="swatch" style={{ background: "var(--cyan)" }} />train</span>
-        <span className="item"><span className="swatch" style={{ background: "var(--pink)" }} />test</span>
+        <LegendItem color="var(--cyan)" label="train" term="Train error" />
+        <LegendItem color="var(--pink)" label="test" term="Test error" />
       </div>
       <p className="callout">
         A <strong>low degree</strong> underfits — too rigid to follow the signal, so both errors stay high (high bias).

@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useArtifact } from "../lib/data";
-import { makeScales, Chart, Axes, Points, Heat, Ellipse, CLASS_COLORS, type Ell } from "../lib/svg";
+import { makeScales, Chart, Axes, Points, Heat, Ellipse, LegendItem, CLASS_COLORS, type Ell } from "../lib/svg";
+
+const CLASS_NAMES = ["Wine cultivar 1", "Wine cultivar 2", "Wine cultivar 3"];
 
 type Grid = { x0: number; x1: number; y0: number; y1: number; step: number };
 type Discriminant = {
@@ -34,7 +36,7 @@ export default function DiscriminantTab() {
         </div>
       </div>
 
-      <Chart title="LDA vs QDA boundary">
+      <Chart title="LDA vs QDA boundary" caption="Background colors show the class the model predicts in each region; dots are real samples colored by their true class; dashed shapes are each class's covariance ellipse; a dot whose color differs from the region beneath it is a misclassification.">
         <Heat grid={selectedGrid} x0={g.x0} x1={g.x1} y0={g.y0} y1={g.y1} sx={sx} sy={sy} />
         {ellipses.map((e, k) => (
           <Ellipse key={k} e={e} sx={sx} sy={sy} color={CLASS_COLORS[k % 3]} />
@@ -45,10 +47,7 @@ export default function DiscriminantTab() {
 
       <div className="legend">
         {Array.from({ length: nClasses }, (_, k) => (
-          <div className="item" key={k}>
-            <span className="dot" style={{ background: CLASS_COLORS[k % 3] }} />
-            class {k}
-          </div>
+          <LegendItem key={k} color={CLASS_COLORS[k % 3]} dot label={`class ${k}`} tip={CLASS_NAMES[k]} />
         ))}
       </div>
 
