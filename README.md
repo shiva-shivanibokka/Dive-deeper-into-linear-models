@@ -7,6 +7,7 @@
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.8-orange)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![Deployed on Vercel](https://img.shields.io/badge/deployed-Vercel-000)
+![CI](https://github.com/shiva-shivanibokka/Dive-deeper-into-linear-models/actions/workflows/ci.yml/badge.svg)
 
 **🔗 Live demo: [web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**
 
@@ -14,7 +15,7 @@
 
 ## Recruiter TL;DR
 
-- **What it is:** two teaching notebooks covering 20+ supervised-learning models (regularized, kernel, robust, generalized, and probabilistic linear models plus tree ensembles), paired with a **16-tab interactive web app** that lets anyone explore each model by dragging sliders and watching charts redraw — deployed live on Vercel.
+- **What it is:** two teaching notebooks covering 20+ supervised-learning models (regularized, kernel, robust, generalized, and probabilistic linear models plus tree ensembles), paired with a **17-tab interactive web app** — including a live model-serving API — that lets anyone explore each model by dragging sliders and watching charts redraw. Deployed on Vercel with CI.
 - **Hardest problem solved well:** making trained scikit-learn models *interactive in the browser with no backend and no ML runtime client-side* — models are fit once in Python, swept over their key parameter, and exported as compact precomputed JSON that a dependency-free React/SVG layer redraws instantly.
 - **Why it matters:** closes the most common student-portfolio gap — a model that "works in a notebook but was never deployed." Here the models are deployed, and made legible to a non-expert.
 
@@ -32,7 +33,7 @@ It was built as both a teaching resource and a portfolio piece — the notebooks
 
 ## The Interactive Playground
 
-Sixteen demo tabs, each reading one precomputed artifact and rendering it as inline SVG:
+Seventeen demo tabs — sixteen render precomputed artifacts as inline SVG, and one calls a live prediction API:
 
 | # | Tab | What you do | Models | Dataset |
 |---|-----|-------------|--------|---------|
@@ -51,7 +52,25 @@ Sixteen demo tabs, each reading one precomputed artifact and rendering it as inl
 | 13 | Boosting & Importance | compare importances + partial dependence | Gradient Boosting, XGBoost | Breast Cancer |
 | 14 | Threshold, ROC & Metrics | drag threshold → confusion matrix + ROC/PR move live | Gradient Boosting | Breast Cancer |
 | 15 | Model Comparison | sortable leaderboard across every model | all | Diabetes + Breast Cancer |
-| 16 | About | plain-language guide to every model | — | — |
+| 16 | **Live API** | edit features → **real serverless prediction** via `/api/predict` | Ridge (served) | California Housing |
+| 17 | About | plain-language guide to every model | — | — |
+
+Each demo tab also links back to the exact notebook that teaches it.
+
+### Live prediction API
+
+Beyond the precomputed demos, the app exposes a genuine **model-serving endpoint** — a Ridge
+regressor trained offline in Python, exported as coefficients, and served by a Vercel serverless
+function that standardizes inputs and computes the prediction live (no Python at runtime):
+
+```bash
+curl -X POST https://web-sable-gamma-39.vercel.app/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"features":{"MedInc":8.3,"HouseAge":41,"AveRooms":6.9,"AveBedrms":1.02,"Population":322,"AveOccup":2.5,"Latitude":37.88,"Longitude":-122.23}}'
+# -> {"prediction":4.127,"unit":"median house value (in $100,000s)","usd":412733}
+```
+
+A `GET` to the same URL returns the model's feature schema and an example payload.
 
 ---
 
@@ -96,7 +115,10 @@ flowchart LR
 ## Skills Demonstrated
 
 - **Applied ML breadth** — regularization, robust regression, generalized linear models, discriminant analysis, kernel methods, and boosting, applied and compared on real datasets.
+- **Production ML serving / MLOps** — a trained model deployed behind a live serverless prediction API, separate from the training/notebook code.
 - **Cloud deployment (Vercel)** — a working, publicly reachable production URL, not a local-only demo.
+- **CI/CD** — GitHub Actions runs the test suite, the export self-check, and the web build on every push.
+- **Automated testing** — a pytest suite validating the schema/shape contract of every precomputed artifact.
 - **System design & architecture** — a documented, deliberate tradeoff (precomputed artifacts vs. client-side inference) recorded in `docs/superpowers/specs/`.
 - **Data-to-artifact pipeline** — a reproducible export stage that transforms raw sklearn datasets into model-ready, versioned JSON with a validation self-check.
 - **Frontend engineering** — TypeScript + React/Next.js, dependency-light, accessible controls, responsive SVG.
@@ -113,12 +135,16 @@ Dive-deeper-into-linear-models/
 ├── requirements.txt                   # Python deps for the notebooks + export
 ├── scripts/
 │   └── export_web_artifacts.py        # sklearn models → web/public/*.json (with self-check)
+├── tests/
+│   └── test_export_artifacts.py       # pytest: artifact schema/shape contract
+├── .github/workflows/ci.yml           # CI: pytest + export self-check + web build
 ├── web/                               # Next.js 15 interactive playground
 │   ├── app/
 │   │   ├── page.tsx                   # tab shell (hero, tab bar, panel)
 │   │   ├── models.ts                  # tab registry — single source of truth
+│   │   ├── api/predict/               # serverless model-serving endpoint + exported model
 │   │   ├── lib/                       # useArtifact hook + shared SVG chart helpers
-│   │   └── components/                # 16 tab components (one per demo)
+│   │   └── components/                # 17 tab components (one per demo)
 │   └── public/                        # 15 precomputed JSON artifacts
 └── docs/superpowers/                  # design spec + implementation plan
 ```
@@ -158,19 +184,27 @@ python scripts/export_web_artifacts.py   # writes web/public/*.json, then self-c
 
 ## Deployment
 
-Deployed on **Vercel** as a static, client-side Next.js app (project root: `web/`). The site is fully static — no server functions, no environment variables, no Python at build time (the precomputed artifacts are committed). Live at **[web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**.
+Deployed on **Vercel** (project root: `web/`). The demo tabs are static client-side pages served from committed artifacts (no env vars, no Python at build time), plus one **serverless function** (`/api/predict`) for the live prediction endpoint. Live at **[web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**.
 
 > Note: the Vercel project's **Root Directory** must be set to `web` for git-triggered redeploys, since the Next.js app lives in a subdirectory.
 
 ---
 
-## Testing
+## Testing & CI
 
-There is no formal unit-test suite (this is a teaching/portfolio repo, not a service). What *is* verified:
+Every push runs **GitHub Actions** (`.github/workflows/ci.yml`) with two jobs:
 
-- `export_web_artifacts.py` ends with an **assert-based self-check** that every expected artifact exists, is valid JSON, and is non-empty — a failed or empty export is caught before it can ship.
-- Both notebooks execute **top-to-bottom without errors** (verified via `jupyter nbconvert --execute`).
-- The web app builds clean with **strict TypeScript** (`next build` with no type errors).
+- **Artifacts & tests** — a `pytest` suite (`tests/test_export_artifacts.py`) that fits each model and asserts its exported artifact matches the schema/shape the frontend consumes (matrix dimensions, boundary-grid squareness, metric bounds, the serving-model contract), then runs the export script's own assert-based self-check.
+- **Build web app** — `npm ci` + `next build` with **strict TypeScript**, so a type error or broken tab fails CI.
+
+Run locally:
+
+```bash
+pytest -q                       # 13 artifact-contract tests
+cd web && npm run build         # type-check + build
+```
+
+The notebooks additionally execute top-to-bottom without errors (verified via `jupyter nbconvert --execute`).
 
 ---
 
