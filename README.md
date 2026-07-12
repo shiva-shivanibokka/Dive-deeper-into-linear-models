@@ -9,7 +9,7 @@
 ![Deployed on Vercel](https://img.shields.io/badge/deployed-Vercel-000)
 ![CI](https://github.com/shiva-shivanibokka/Dive-deeper-into-linear-models/actions/workflows/ci.yml/badge.svg)
 
-**🔗 Live demo: [web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**
+**🔗 Live demo: [dive-deep-linear-models.vercel.app](https://dive-deep-linear-models.vercel.app)**
 
 ---
 
@@ -55,7 +55,9 @@ Seventeen demo tabs — sixteen render precomputed artifacts as inline SVG, and 
 | 16 | **Live API** | edit features → **real serverless prediction** via `/api/predict` | Ridge (served) | California Housing |
 | 17 | About | plain-language guide to every model | — | — |
 
-Each demo tab also links back to the exact notebook that teaches it.
+Each demo tab also links back to the exact notebook that teaches it. Every chart carries a heading, a
+plain-language "how to read it" caption, and a `?` tooltip on each legend entry (and each Live-API input)
+that defines the term — so a visitor who has never heard of "RANSAC" or "MedInc" can still follow along.
 
 ### Live prediction API
 
@@ -64,7 +66,7 @@ regressor trained offline in Python, exported as coefficients, and served by a V
 function that standardizes inputs and computes the prediction live (no Python at runtime):
 
 ```bash
-curl -X POST https://web-sable-gamma-39.vercel.app/api/predict \
+curl -X POST https://dive-deep-linear-models.vercel.app/api/predict \
   -H "Content-Type: application/json" \
   -d '{"features":{"MedInc":8.3,"HouseAge":41,"AveRooms":6.9,"AveBedrms":1.02,"Population":322,"AveOccup":2.5,"Latitude":37.88,"Longitude":-122.23}}'
 # -> {"prediction":4.127,"unit":"median house value (in $100,000s)","usd":412733}
@@ -87,7 +89,7 @@ flowchart LR
     end
     subgraph Browser["Next.js on Vercel (static, client-side)"]
         JSON --> HOOK[useArtifact fetch hook]
-        HOOK --> TAB[16 lazy-loaded tab components]
+        HOOK --> TAB[17 lazy-loaded tab components]
         TAB --> SVG[dependency-free inline-SVG charts]
         CTRL[slider / toggle] -->|indexes into<br/>precomputed arrays| TAB
     end
@@ -184,7 +186,7 @@ python scripts/export_web_artifacts.py   # writes web/public/*.json, then self-c
 
 ## Deployment
 
-Deployed on **Vercel** (project root: `web/`). The demo tabs are static client-side pages served from committed artifacts (no env vars, no Python at build time), plus one **serverless function** (`/api/predict`) for the live prediction endpoint. Live at **[web-sable-gamma-39.vercel.app](https://web-sable-gamma-39.vercel.app)**.
+Deployed on **Vercel** (project root: `web/`). The demo tabs are static client-side pages served from committed artifacts (no env vars, no Python at build time), plus one **serverless function** (`/api/predict`) for the live prediction endpoint. Live at **[dive-deep-linear-models.vercel.app](https://dive-deep-linear-models.vercel.app)**.
 
 > Note: the Vercel project's **Root Directory** must be set to `web` for git-triggered redeploys, since the Next.js app lives in a subdirectory.
 
