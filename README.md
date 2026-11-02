@@ -121,7 +121,7 @@ flowchart LR
 - **Cloud deployment (Vercel)** — a working, publicly reachable production URL, not a local-only demo.
 - **CI/CD** — GitHub Actions runs the test suite, the export self-check, and the web build on every push.
 - **Automated testing** — a pytest suite validating the schema/shape contract of every precomputed artifact.
-- **System design & architecture** — a documented, deliberate tradeoff (precomputed artifacts vs. client-side inference) recorded in `docs/superpowers/specs/`.
+- **System design & architecture** — a documented, deliberate tradeoff: precomputed artifacts over client-side inference, so the page stays dependency-light and the heavy work happens once at build time.
 - **Data-to-artifact pipeline** — a reproducible export stage that transforms raw sklearn datasets into model-ready, versioned JSON with a validation self-check.
 - **Frontend engineering** — TypeScript + React/Next.js, dependency-light, accessible controls, responsive SVG.
 - **Technical communication** — turning ML concepts into interactive explanations a non-expert can follow.
@@ -148,7 +148,6 @@ Dive-deeper-into-linear-models/
 │   │   ├── lib/                       # useArtifact hook + shared SVG chart helpers
 │   │   └── components/                # 17 tab components (one per demo)
 │   └── public/                        # 15 precomputed JSON artifacts
-└── docs/superpowers/                  # design spec + implementation plan
 ```
 
 ---
