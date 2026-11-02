@@ -140,7 +140,7 @@ Dive-deeper-into-linear-models/
 ├── tests/
 │   └── test_export_artifacts.py       # pytest: artifact schema/shape contract
 ├── .github/workflows/ci.yml           # CI: pytest + export self-check + web build
-├── web/                               # Next.js 15 interactive playground
+└── web/                               # Next.js 15 interactive playground
 │   ├── app/
 │   │   ├── page.tsx                   # tab shell (hero, tab bar, panel)
 │   │   ├── models.ts                  # tab registry — single source of truth
